@@ -79,19 +79,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                         [NSIndexPath(forRow: 0, inSection: 0)],
                         withRowAnimation: UITableViewRowAnimation.Right)
                     
-                    //--------------------
-                    // 保存処理を追加
-                    //--------------------
-                    // NSData型にシリアライズする
-                    let data: NSData =  NSKeyedArchiver.archivedDataWithRootObject(self.todoList)
-                    
-                    // NSUserDefaultsに保存
-                    let userDefaults = NSUserDefaults.standardUserDefaults()
-                    userDefaults.setObject(data, forKey: "todoList")
-                    userDefaults.synchronize()
-                    
-                    // バッジの数字を更新
-                    UIApplication.sharedApplication().applicationIconBadgeNumber = self.todoList.count
+                    // データの保存処理を追加
+                    self.saveData()
                 }
             }
         }
@@ -149,14 +138,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         // セルの状態を変更
         tableView.reloadRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Fade)
         
-        // データ保存
-        // NSData型にシリアライズする
-        let data: NSData = NSKeyedArchiver.archivedDataWithRootObject(todoList)
-        
-        // NSUserDefaultsに保存
-        let userDefaults = NSUserDefaults.standardUserDefaults()
-        userDefaults.setObject(data, forKey: "todoList")
-        userDefaults.synchronize()
+        // データの保存処理を追加
+        self.saveData()
     }
     
 //    /**
@@ -202,7 +185,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
      */
     func tableView(tableView: UITableView,
          editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
-        let userDefaults = NSUserDefaults.standardUserDefaults()
         let todo = todoList[indexPath.row]
         if todo.todoDone {
             // 完了済みの場合はToDoリストから削除。記録に保存する
@@ -232,6 +214,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                     // 達成したToDoを追加
                     self.achievementTodoList.append(todoData)
                     // NSUserDefaultsに保存
+                    let userDefaults = NSUserDefaults.standardUserDefaults()
                     userDefaults.setObject(self.achievementTodoList, forKey: "achievementList")
                     userDefaults.synchronize()
                         
@@ -239,16 +222,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                     self.todoList.removeAtIndex(indexPath.row)
                     // セルを削除
                     tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-                    // データ保存
-                    // NSData型にシリアライズする
-                    let data: NSData = NSKeyedArchiver.archivedDataWithRootObject(self.todoList)
-                    
-                    // NSUserDefaultsに保存
-                    userDefaults.setObject(data, forKey: "todoList")
-                    userDefaults.synchronize()
-                        
-                    // バッジの数字を更新
-                    UIApplication.sharedApplication().applicationIconBadgeNumber = self.todoList.count
+                    // データの保存処理を追加
+                    self.saveData()
                 }
                 // Yesボタンを追加
                 alertController.addAction(yesAction)
@@ -277,20 +252,26 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             self.todoList.removeAtIndex(indexPath.row)
             // セルを削除
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-            // データ保存
-            // NSData型にシリアライズする
-            let data: NSData = NSKeyedArchiver.archivedDataWithRootObject(self.todoList)
-            
-            // NSUserDefaultsに保存
-            userDefaults.setObject(data, forKey: "todoList")
-            userDefaults.synchronize()
-            
-            // バッジの数字を更新
-            UIApplication.sharedApplication().applicationIconBadgeNumber = self.todoList.count
+            // データの保存処理を追加
+            self.saveData()
         }
         // バックグラウンドの色を赤色に変更
         myDeleteButton.backgroundColor = UIColor.redColor()
         return [myDeleteButton]
+    }
+    
+    /**
+     * todoList保存をする処理
+     */
+    func saveData() {
+        // NSData型にシリアライズする
+        let data: NSData = NSKeyedArchiver.archivedDataWithRootObject(self.todoList)
+        // NSUserDefaultsに保存
+        let userDefaults = NSUserDefaults.standardUserDefaults()
+        userDefaults.setObject(data, forKey: "todoList")
+        userDefaults.synchronize()
+        // バッジの数字を更新
+        UIApplication.sharedApplication().applicationIconBadgeNumber = self.todoList.count
     }
     
     
